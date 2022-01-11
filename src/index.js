@@ -5,16 +5,61 @@ import './index.css';
 class Square extends React.Component {
 	render() {
 		return (
-				<button className="square">
-					{/* TODO */}
+				<button
+					className="square"
+					onClick={() => this.props.onClick()}
+				>
+					{this.props.value}
 				</button>
 		);
 	}
 }
 
 class Board extends React.Component {
+	// Важный ВЫВОД:
+	// Теперь когда компонент Board хранит состояние и передаёт его в виде пропов в дочерние компоненты Square, он становится
+	// для них ИСТОЧНИКОМ ИСТИНЫ. Более того компонент Board в виде пропа также передаёт коллбэк, который дочерний компонент
+	// должен вызывать каждый раз в ответ на определённое событие, извещая родительский компонент Board о том, что в нём что-то произошло.
+	// Получается, что компонент Board КОНТРОЛИРУЕТ компоненты Square:
+	// - определяет, ЧТО им рисовать;
+	// - требует от них СООБЩАТЬ о действиях в них.
+	// то есть имеет полный контроль над ними!
+	// Компоненты Square в данной ситуации называются КОНТРОЛИРУЕМЫМИ!
+	constructor(props) {
+		super(props);
+		this.state = {
+			squaresValues: Array(9).fill(null),
+		}
+	}
+
+	handleClick(i) {
+		// 2 варианта того, как заменить / добавить элемент в массив
+		// 1) Вариант "в лоб":
+		const newSquaresValues = this.state.squaresValues.slice();
+		newSquaresValues[i] = 'X';
+		this.setState({
+			squaresValues: newSquaresValues,
+		});
+		// 2) модный вариант на spread-операторах и варианте setState, принимающим стрелочный коллбэк с прошлым стейтом)
+		// this.setState((prevState) => {
+		// 	return {
+		// 		squaresValues: [
+		// 			...prevState.squaresValues.slice(0, i),
+		// 			'X',
+		// 			...prevState.squaresValues.slice(i + 1),
+		// 		],
+		// 	}
+		// });
+	}
+
 	renderSquare(i) {
-		return <Square />;
+		return (
+			<Square
+				value={this.state.squaresValues[i]}
+				onClick={() => this.handleClick(i)}
+			/>
+			)
+
 	}
 
 	render() {
