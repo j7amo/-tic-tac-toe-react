@@ -66,3 +66,54 @@ ReactDOM.render(
 		document.getElementById('root')
 );
 
+// Рассмотрим как именно Babel транспилирует JSX в обычный JS
+// JSX:
+// <div className="shopping-list">
+// 	<h1>Shopping List for {this.props.name}!</h1>
+// 	<ul>
+// 		<li>Instagram</li>
+// 		<li>WhatsApp</li>
+// 		<li>Oculus</li>
+// 	</ul>
+// </div>
+
+// JS:
+// 1) Для каждого "кирпичика" / React-элемента вызывается React.createElement,где
+// React.createElement(
+// 1.1) 1-ый аргумент - тип тэга в формате string
+// 		'div',
+// 1.2) 2-ой аргумент может принимать 2 значения:
+// 1.2.1) Если у React-элемента ЕСТЬ атрибуты / пропы, то здесь будет объект с парами "ПРОП: ЗНАЧЕНИЕ"
+// 		{
+// 			className: 'shopping-list',
+// 		},
+// 		React.createElement(
+// 				'h1',
+// 1.2.2) Если у React-элемента НЕТ атрибутов / пропов, то здесь будет NULL
+// 				null,
+// 1.3) 3-ий аргумент это CHILDREN / потомок / некий дочерний контент (это может быть как React-элемент, так и простой текст, так выражение, которое
+// что-то возвращает). Если в рамках CHILDREN элемента есть несколько разных типов, то они разделяются ',' (как в этом примере).
+// 				'Shopping List for',
+// 				this.props.name,
+// 				'!',
+// 		),
+// 		React.createElement(
+// 				'ul',
+// 				null,
+// 				React.createElement(
+// 						'li',
+// 						null,
+// 						'Instagram',
+// 				),
+// 				React.createElement(
+// 						'li',
+// 						null,
+// 						'WhatsApp',
+// 				),
+// 				React.createElement(
+// 						'li',
+// 						null,
+// 						'Oculus',
+// 				),
+// 		)
+// 		)
