@@ -2,17 +2,43 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import './index.css';
 
-class Square extends React.Component {
-	render() {
-		return (
-				<button
-					className="square"
-					onClick={() => this.props.onClick()}
-				>
-					{this.props.value}
-				</button>
-		);
-	}
+
+
+
+
+
+
+
+
+//const componentObj = React.createElement('div', {className: 'someDiv'}, <span className="someSpan">Hi!</span>)
+// или
+const componentObj = <div className='someDiv'><span className='someSpan'>Hi!</span></div>
+console.log(componentObj)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+function Square(props) {
+	return (
+			<button
+				className="square"
+				onClick={props.onClick}
+			>
+				{props.value}
+			</button>
+	);
 }
 
 class Board extends React.Component {
@@ -29,6 +55,7 @@ class Board extends React.Component {
 		super(props);
 		this.state = {
 			squaresValues: Array(9).fill(null),
+			xIsNext: true,
 		}
 	}
 
@@ -36,9 +63,15 @@ class Board extends React.Component {
 		// 2 варианта того, как заменить / добавить элемент в массив
 		// 1) Вариант "в лоб":
 		const newSquaresValues = this.state.squaresValues.slice();
-		newSquaresValues[i] = 'X';
+		// игнорируем клики, если calculateWinner вернула не NULL(игра завершена) либо под этим индексом в массиве
+		// уже есть НЕ NULL значение (значит, клик по этой клетке уже был).
+		if (calculateWinner(newSquaresValues) || newSquaresValues[i]) {
+			return;
+		}
+		newSquaresValues[i] = this.state.xIsNext ? 'X' : 'O';
 		this.setState({
 			squaresValues: newSquaresValues,
+			xIsNext: !this.state.xIsNext,
 		});
 		// 2) модный вариант на spread-операторах и варианте setState, принимающим стрелочный коллбэк с прошлым стейтом)
 		// this.setState((prevState) => {
@@ -63,7 +96,13 @@ class Board extends React.Component {
 	}
 
 	render() {
-		const status = 'Next player: X';
+		const winner = calculateWinner(this.state.squaresValues);
+		let status;
+		if (winner) {
+			status = `The Winner is: ${winner}`;
+		} else {
+			status = `Next player: ${this.state.xIsNext ? 'X' : 'O'}`;
+		}
 
 		return (
 				<div>
@@ -110,6 +149,28 @@ ReactDOM.render(
 		<Game />,
 		document.getElementById('root')
 );
+
+// ========================================
+// Helper-функция
+function calculateWinner(squares) {
+	const lines = [
+		[0, 1, 2],
+		[3, 4, 5],
+		[6, 7, 8],
+		[0, 3, 6],
+		[1, 4, 7],
+		[2, 5, 8],
+		[0, 4, 8],
+		[2, 4, 6],
+	];
+	for (let i = 0; i < lines.length; i++) {
+		const [a, b, c] = lines[i];
+		if (squares[a] && squares[a] === squares[b] && squares[a] === squares[c]) {
+			return squares[a];
+		}
+	}
+	return null;
+}
 
 // Рассмотрим как именно Babel транспилирует JSX в обычный JS
 // JSX:
